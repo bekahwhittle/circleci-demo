@@ -1,8 +1,6 @@
       
 version: 2.1
 
-### Setup ###
-setup: true
 
 ### Executors ###
 executors:
@@ -10,14 +8,6 @@ executors:
     docker: 
       - image: cimg/node:14.0.0
 
-### Parameters ###
-parameters:
-  test-src:
-    type: boolean
-    default: false
-  build-client:
-    type: boolean
-    default: false
 
 ### Jobs ###
 jobs:
@@ -29,18 +19,6 @@ jobs:
       - checkout
       - run: yarn install
       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
-
-  # Setup job is apart of setup workflows (in preview)     
-  setup:
-    executor: continuation/default
-    steps:
-      - checkout
-      - run:
-          name: Generate config
-          command: |
-            .circleci/primary > generate_config.yml
-      - continuation/continue:
-          configuration_path: generate_config.yml
 
   # Lint using eslint
   lint: 
@@ -120,9 +98,6 @@ workflows:
   build_test_deploy: 
     jobs: 
       - build
-      - setup:
-          requires:
-            - build
       - lint:
           requires:
             - build
