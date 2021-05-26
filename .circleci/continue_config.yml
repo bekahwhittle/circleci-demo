@@ -20,6 +20,9 @@ parameters:
   build-client:
     type: boolean
     default: false
+  @changes:
+    type: boolean
+    default: false
 
 ### Jobs ###
 jobs:
@@ -114,6 +117,11 @@ jobs:
 ### Workflows ###
 workflows: 
   version: 2.1
+
+  @changes:
+    when: << pipeline.parameters.@changes >>
+    jobs: 
+      - build
 
   circle-ci:
     when: << pipeline.parameters.circle-ci >>
