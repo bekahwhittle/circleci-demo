@@ -119,7 +119,7 @@ workflows:
   version: 2.1
 
   \@changes:
-    when: << pipeline.parameters.\@changes >>
+    when: \<< pipeline.parameters.@changes >>
     jobs: 
       - build
 
