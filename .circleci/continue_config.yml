@@ -20,7 +20,7 @@ parameters:
   build-client:
     type: boolean
     default: false
-  @changes:
+  \@changes:
     type: boolean
     default: false
 
@@ -118,7 +118,7 @@ jobs:
 workflows: 
   version: 2.1
 
-  @changes:
+  \@changes:
     when: << pipeline.parameters.@changes >>
     jobs: 
       - build
