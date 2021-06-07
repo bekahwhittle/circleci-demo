@@ -152,5 +152,42 @@ orbs:
 #             src/.* test-src true
 #             build/.* build-client true
 #             .circleci/.* circle-ci true
+#             \@changes/.* \@changes true
 #           # Optional, defaults to main:
-#           base-revision: origin/main
+#           base-revision: << pipeline.git.revision >>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################################################
+# version: 2.1
+
+# jobs:
+#   xcode-job:
+#     machine: true
+#     resource_class: newton/my-xcode-runner
+#     steps:
+#       - run: echo "Hi Im running on a runner that has xcode installed, yay!"
+
+# workflows:
+#   testing:
+#     jobs:
+#       - xcode-job
+
+### Runner team - logs with 400error - resource-class is the same for every build
+### Some of the docker ones are running but the mac one is NOT running
+### Hardware is setup - xcode is installed - 12.2 
+### Personal computer vs company hardware restrictions
+### No errors during install 
+### 
