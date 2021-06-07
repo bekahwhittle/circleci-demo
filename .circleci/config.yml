@@ -1,157 +1,193 @@
       
-# version: 2.1
+version: 2.1
 
 
-# ### Executors ###
-# executors:
-#   node:
-#     docker: 
-#       - image: cimg/node:14.0.0
+### Executors ###
+executors:
+  node:
+    docker: 
+      - image: cimg/node:14.0.0
 
 
-# ### Jobs ###
-# jobs:
-#   # Building application yarn install & cypress install
-#   build: 
-#     executor:
-#       name: node
-#     steps:
-#       - checkout
-#       - run: yarn install
-#       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
+### Jobs ###
+jobs:
+  # Building application yarn install & cypress install
+  build: 
+    executor:
+      name: node
+    steps:
+      - checkout
+      - run: yarn install
+      - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
 
-#   # Lint using eslint
-#   lint: 
-#     executor:
-#       name: node
-#     steps:
-#       - checkout
-#       - restore_cache:
-#           keys:
-#             - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
-#             - yarn-packages-v1-{{ .Branch }}-
-#             - yarn-packages-v1-
-#       - run: yarn install
-#       - run: yarn lint
-#       - save_cache:
-#           paths:
-#             - ~/.cache/yarn
-#           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+  # Lint using eslint
+  lint: 
+    executor:
+      name: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run: yarn install
+      - run: yarn lint
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
-#   # Cypress unit testing
-#   test: 
-#     docker: 
-#       - image: cypress/base:10
-#     parallelism: 4
-#     resource_class: large
-#     steps: 
-#       - checkout
-#       - restore_cache:
-#           keys:
-#             - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
-#             - yarn-packages-v1-{{ .Branch }}-
-#             - yarn-packages-v1-
-#       - run: yarn install --frozen-lockfile
-#       - save_cache:
-#           paths:
-#             - ~/.cache/yarn
-#           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
-#       - run: yarn cypress run $CYPRESS_TEST
-#       - store_test_results:
-#           path: ~/project/tests
-#       - store_artifacts:
-#           path: ~/project/tests/junit.xml
+  # Cypress unit testing
+  test: 
+    docker: 
+      - image: cypress/base:10
+    parallelism: 4
+    resource_class: large
+    steps: 
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn cypress run $CYPRESS_TEST
+      - store_test_results:
+          path: ~/project/tests
+      - store_artifacts:
+          path: ~/project/tests/junit.xml
 
-#   # Build then push docker image to gcr
-#   build-docker-image: 
-#     machine: true
-#     resource_class: large
-#     steps:
-#       - checkout
-#       - gcp-gcr/gcr-auth
-#       - gcp-gcr/build-image:
-#           image: planted-app
-#           tag: $CIRCLE_SHA1
-#       - gcp-gcr/push-image:
-#           image: planted-app
-#           tag: $CIRCLE_SHA1
+  # Build then push docker image to gcr
+  build-docker-image: 
+    machine: true
+    resource_class: large
+    steps:
+      - checkout
+      - gcp-gcr/gcr-auth
+      - gcp-gcr/build-image:
+          image: planted-app
+          tag: $CIRCLE_SHA1
+      - gcp-gcr/push-image:
+          image: planted-app
+          tag: $CIRCLE_SHA1
   
-#   # Deploy application to gke
-#   gke-deploy: 
-#     machine: true
-#     resource_class: large
-#     steps:
-#       - gcp-gcr/gcr-auth
-#       - gke/update-kubeconfig-with-credentials:
-#           cluster: planted-cluster
-#           install-kubectl: true
-#       - gke/rollout-image:
-#           cluster: planted-cluster
-#           deployment: planted-prod
-#           container: planted-prod
-#           image: gcr.io/circleci-demo-286921/planted-app
-#           tag: $CIRCLE_SHA1
+  # Deploy application to gke
+  gke-deploy: 
+    machine: true
+    resource_class: large
+    steps:
+      - gcp-gcr/gcr-auth
+      - gke/update-kubeconfig-with-credentials:
+          cluster: planted-cluster
+          install-kubectl: true
+      - gke/rollout-image:
+          cluster: planted-cluster
+          deployment: planted-prod
+          container: planted-prod
+          image: gcr.io/circleci-demo-286921/planted-app
+          tag: $CIRCLE_SHA1
 
-# ### Workflows ###
-# workflows: 
-#   version: 2.1
-#   build_test_deploy: 
-#     jobs: 
-#       - build
-#       - lint:
-#           requires:
-#             - build
-#       - test:
-#           requires: 
-#             - build
-#       - build-docker-image:
-#           context: GCLOUD
-#           requires: 
-#             - test
-#             - lint
-#           filters:
-#             branches:
-#               only:
-#                 - main
-#       - hold-gke-deploy:
-#           type: approval
-#           requires: 
-#             - build-docker-image
-#       - gke-deploy: 
-#           context: GCLOUD
-#           requires: 
-#             - hold-gke-deploy
+### Workflows ###
+workflows: 
+  version: 2.1
+  build_test_deploy: 
+    jobs: 
+      - build
+      - lint:
+          requires:
+            - build
+      - test:
+          requires: 
+            - build
+      - build-docker-image:
+          context: GCLOUD
+          requires: 
+            - test
+            - lint
+          filters:
+            branches:
+              only:
+                - main
+      - hold-gke-deploy:
+          type: approval
+          requires: 
+            - build-docker-image
+      - gke-deploy: 
+          context: GCLOUD
+          requires: 
+            - hold-gke-deploy
 
-# ### Orbs ###
-# orbs:
-#   # Uses the Continuation API #
-#   continuation: circleci/continuation@0.1.2
-#   # Uses path filtering for mono support #
-#   path-filtering: circleci/path-filtering@0.0.2
+### Orbs ###
+orbs:
+  # Uses the Continuation API #
+  continuation: circleci/continuation@0.1.2
+  # Uses path filtering for mono support #
+  path-filtering: circleci/path-filtering@0.0.2
 
-#   gcp-gcr: circleci/gcp-gcr@0.7.1
-#   gke: circleci/gcp-gke@1.1.0
-#   cypress: cypress-io/cypress@1.26.0
+  gcp-gcr: circleci/gcp-gcr@0.7.1
+  gke: circleci/gcp-gke@1.1.0
+  cypress: cypress-io/cypress@1.26.0
 
 
 ################################################################################################################################################
 ### setup workflows ###    
 
-version: 2.1
+# version: 2.1
 
-setup: true
+# setup: true
 
-orbs:
-  path-filtering: circleci/path-filtering@0.0.2
+# orbs:
+#   path-filtering: circleci/path-filtering@0.0.2
 
-workflows:
-  setup-workflow:
-    jobs:
-      - path-filtering/filter:
-          mapping: |
-            src/.* test-src true
-            build/.* build-client true
-            .circleci/.* circle-ci true
-            \@changes/.* \@changes true
-          # Optional, defaults to main:
-          base-revision: << pipeline.git.revision >>
+# workflows:
+#   setup-workflow:
+#     jobs:
+#       - path-filtering/filter:
+#           mapping: |
+#             src/.* test-src true
+#             build/.* build-client true
+#             .circleci/.* circle-ci true
+#             \@changes/.* \@changes true
+#           # Optional, defaults to main:
+#           base-revision: << pipeline.git.revision >>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################################################
+# version: 2.1
+
+# jobs:
+#   xcode-job:
+#     machine: true
+#     resource_class: newton/my-xcode-runner
+#     steps:
+#       - run: echo "Hi Im running on a runner that has xcode installed, yay!"
+
+# workflows:
+#   testing:
+#     jobs:
+#       - xcode-job
+
+### Runner team - logs with 400error - resource-class is the same for every build
+### Some of the docker ones are running but the mac one is NOT running
+### Hardware is setup - xcode is installed - 12.2 
+### Personal computer vs company hardware restrictions
+### No errors during install 
+### 
