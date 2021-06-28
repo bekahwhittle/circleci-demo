@@ -58,9 +58,9 @@ jobs:
           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run: yarn cypress run $CYPRESS_TEST
       - store_test_results:
-          path: ~/project/tests
+          path: ~/cypress/tests
       - store_artifacts:
-          path: ~/project/tests/junit.xml
+          path: ~/cypress/tests
 
   # Build then push docker image to gcr
   build-docker-image: 
