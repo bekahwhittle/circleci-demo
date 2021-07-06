@@ -20,6 +20,7 @@ jobs:
       - run: yarn install
       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
 
+      
   # Lint using eslint
   lint: 
     executor:
@@ -58,9 +59,9 @@ jobs:
           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run: yarn cypress run $CYPRESS_TEST
       - store_test_results:
-          path: ~/cypress/tests
+          path: ~/project/test-results
       - store_artifacts:
-          path: ~/cypress/tests
+          path: ~/project/test-results/junit.xml
 
   # Build then push docker image to gcr
   build-docker-image: 
