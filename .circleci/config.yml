@@ -9,6 +9,8 @@ executors:
       - image: cimg/node:14.0.0
 
 
+
+      
 ### Jobs ###
 jobs:
   # Building application yarn install & cypress install
