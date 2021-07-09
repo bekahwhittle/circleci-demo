@@ -8,7 +8,30 @@ executors:
     docker: 
       - image: cimg/node:14.0.0
 
+parameters:
+  pr_webhook:
+    type: boolean
+    default: false
+  pr_user:
+    type: string
+    default: "hueylewis"
+  pr_commit_message:
+    type: string
+    default: "the news"
+  pr_base:
+    type: string
+    default: "dev"
+  pr_sha:
+    type: string
+    default: "123"
+  pr_number:
+    type: integer
+    default: 1
+  pr_action:
+    type: string
+    default: "opened"
 
+      
 ### Jobs ###
 jobs:
   # Building application yarn install & cypress install
@@ -20,6 +43,7 @@ jobs:
       - run: yarn install
       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
 
+      
   # Lint using eslint
   lint: 
     executor:
@@ -58,9 +82,9 @@ jobs:
           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run: yarn cypress run $CYPRESS_TEST
       - store_test_results:
-          path: ~/project/tests
+          path: ~/project/test-results
       - store_artifacts:
-          path: ~/project/tests/junit.xml
+          path: ~/project/test-results/junit.xml
 
   # Build then push docker image to gcr
   build-docker-image: 
