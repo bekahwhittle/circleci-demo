@@ -8,7 +8,28 @@ executors:
     docker: 
       - image: cimg/node:14.0.0
 
-
+parameters:
+  pr_webhook:
+    type: boolean
+    default: false
+  pr_user:
+    type: string
+    default: "hueylewis"
+  pr_commit_message:
+    type: string
+    default: "the news"
+  pr_base:
+    type: string
+    default: "dev"
+  pr_sha:
+    type: string
+    default: "123"
+  pr_number:
+    type: integer
+    default: 1
+  pr_action:
+    type: string
+    default: "opened"
 
       
 ### Jobs ###
