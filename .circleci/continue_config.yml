@@ -86,7 +86,7 @@ jobs:
       - store_test_results:
           path: test-results
       - store_artifacts:
-          path: ~/project/tests/junit.xml
+          path: /tmp/screenshots
 
   # Build then push docker image to gcr
   build-docker-image: 
@@ -101,6 +101,8 @@ jobs:
       - gcp-gcr/push-image:
           image: planted-app
           tag: $CIRCLE_SHA1
+      - store_artifacts: 
+          path: /bin/app_build
   
   # Deploy application to gke
   gke-deploy: 
