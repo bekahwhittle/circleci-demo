@@ -17,9 +17,25 @@ parameters:
   build-client:
     type: boolean
     default: false
-  \@changes:
-    type: boolean
-    default: false
+
+### Commands ###
+commands:
+  cache_deps:
+    description: "dependency caching"
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run: 
+          name: yarn install
+          command: yarn install 
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
 ### Jobs ###
 jobs:
@@ -45,17 +61,8 @@ jobs:
       name: node
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - yarn-packages-v1-{{ .Branch }}-
-            - yarn-packages-v1-
-      - run: yarn install
+      - cache_deps
       - run: yarn lint
-      - save_cache:
-          paths:
-            - ~/.cache/yarn
-          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
   # Cypress unit testing
   test: 
@@ -65,16 +72,7 @@ jobs:
     resource_class: large
     steps: 
       - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - yarn-packages-v1-{{ .Branch }}-
-            - yarn-packages-v1-
-      - run: yarn install --frozen-lockfile
-      - save_cache:
-          paths:
-            - ~/.cache/yarn
-          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - cache_deps
       - run: yarn cypress run $CYPRESS_TEST
       - store_test_results:
           path: test-results
@@ -84,6 +82,7 @@ jobs:
   # Build then push docker image to gcr
   build-docker-image: 
     machine: true
+    docker_layer_caching: true
     resource_class: large
     steps:
       - checkout
@@ -114,11 +113,6 @@ jobs:
 ### Workflows ###
 workflows: 
   version: 2.1
-
-  \@changes:
-    when: \<< pipeline.parameters.@changes >>
-    jobs: 
-      - build
 
   circle-ci:
     when: << pipeline.parameters.circle-ci >>
