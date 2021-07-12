@@ -94,6 +94,7 @@ jobs:
     resource_class: large
     steps:
       - checkout
+      - cache_deps
       - gcp-gcr/gcr-auth
       - gcp-gcr/build-image:
           image: planted-app
