@@ -1,5 +1,14 @@
 version: 2.1
 
+### Orbs ###
+orbs:
+  continuation: circleci/continuation@0.1.2
+  path-filtering: circleci/path-filtering@0.0.2
+  gcp-gcr: circleci/gcp-gcr@0.7.1
+  gke: circleci/gcp-gke@1.1.0
+  cypress: cypress-io/cypress@1.26.0
+  circleci-cli: circleci/circleci-cli@0.1.9
+
 ### Executors ###
 executors:
   node:
@@ -82,7 +91,6 @@ jobs:
   # Build then push docker image to gcr
   build-docker-image: 
     machine: true
-    docker_layer_caching: true
     resource_class: large
     steps:
       - checkout
@@ -161,20 +169,3 @@ workflows:
           context: GCLOUD
           requires: 
             - hold-gke-deploy
-
-### Orbs ###
-orbs:
-  # Uses the Continuation API #
-  continuation: circleci/continuation@0.1.2
-  # Uses path filtering for mono support #
-  path-filtering: circleci/path-filtering@0.0.2
-
-  gcp-gcr: circleci/gcp-gcr@0.7.1
-  gke: circleci/gcp-gke@1.1.0
-  cypress: cypress-io/cypress@1.26.0
-  circleci-cli: circleci/circleci-cli@0.1.9
-
-#### setup so src changes run only build-tests 
-#### but if build changes run all build-test-deploy ??
-#### start with "stream you all over me -cowboy-" for src
-#### start with "stream don't you -sad girl-" for build
