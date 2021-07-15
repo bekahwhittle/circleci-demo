@@ -148,7 +148,7 @@ workflows:
   build_client:
     when: << pipeline.parameters.build-client >>
     jobs: 
-      - build
+      - build:
         filters:
           branches:
             only:
@@ -158,7 +158,6 @@ workflows:
             - build
       - test:
           requires: 
-            - build
             - lint
       - build-docker-image:
           context: GCLOUD
