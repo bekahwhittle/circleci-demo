@@ -149,21 +149,22 @@ workflows:
     when: << pipeline.parameters.build-client >>
     jobs: 
       - build
+        filters:
+          branches:
+            only:
+              - main
       - lint:
           requires:
             - build
       - test:
           requires: 
             - build
+            - lint
       - build-docker-image:
           context: GCLOUD
           requires: 
             - test
             - lint
-          filters:
-            branches:
-              only:
-                - main
       - hold-gke-deploy:
           type: approval
           requires: 
