@@ -13,6 +13,5 @@ workflows:
             src/.* test-src true
             build/.* build-client true
             .circleci/.* circle-ci true
-            \@changes/.* \@changes true
           # Optional, defaults to main:
           base-revision: origin/main
