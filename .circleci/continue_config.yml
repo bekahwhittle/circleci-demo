@@ -54,7 +54,7 @@ jobs:
       name: node
     steps:
       - checkout
-      - run: yarn install
+      - cache_deps
       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
 
   # Setup job is apart of setup workflows (in preview)     
