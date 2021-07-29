@@ -145,25 +145,24 @@ workflows:
               - lint
 
 
-  build_client:
+  build-client:
     when: << pipeline.parameters.build-client >>
     jobs: 
-      - build:
-        filters:
-          branches:
-            only:
-              - main
-      - lint:
-          requires:
-            - build
-      - test:
-          requires: 
-            - lint
+      - build
+        # filters:
+        #   branches:
+        #     only:
+        #       - main
+      # - lint:
+      #     requires:
+      #       - build
+      # - test:
+      #     requires: 
+      #       - lint
       - build-docker-image:
           context: GCLOUD
           requires: 
-            - test
-            - lint
+            - build
       - hold-gke-deploy:
           type: approval
           requires: 

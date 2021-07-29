@@ -10,8 +10,7 @@ workflows:
     jobs:
       - path-filtering/filter:
           mapping: |
-            src/.* test-src true
-            build/.* build-client true
             .circleci/.* circle-ci true
+            .src/.* build-client true
           # Optional, defaults to main:
           base-revision: origin/main
