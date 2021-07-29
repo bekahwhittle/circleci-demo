@@ -11,6 +11,6 @@ workflows:
       - path-filtering/filter:
           mapping: |
             .circleci/.* circle-ci true
-            .src/.* build-client true
+            src/.* build-client true
           # Optional, defaults to main:
           base-revision: origin/main
