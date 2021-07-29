@@ -40,7 +40,7 @@ commands:
             - yarn-packages-v1-
       - run: 
           name: yarn install
-          command: yarn install 
+          command: yarn install --ignore-engines
       - save_cache:
           paths:
             - ~/.cache/yarn
