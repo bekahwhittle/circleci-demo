@@ -9,8 +9,8 @@ executors:
 ### Jobs ###
 jobs:
 
-  # Setting up temporary artifact storage
-  artifacts:
+  # Setting up temporary artifacts
+  artifacts: 
     working_directory: /tmp
     steps:
       - run:
