@@ -12,6 +12,8 @@ jobs:
   # Setting up temporary artifacts
   artifacts: 
     working_directory: /tmp
+    executor:
+      name: node
     steps:
       - run:
           name: Creating Dummy Artifacts
