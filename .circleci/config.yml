@@ -3,14 +3,14 @@ version: 2.1
 ### Executors ###
 executors:
   node:
-    docker: 
+    docker:
       - image: cimg/node:14.0.0
 
 ### Jobs ###
 jobs:
 
   # Setting up temporary artifacts
-  artifacts: 
+  artifacts:
     working_directory: /tmp
     executor:
       name: node
@@ -30,7 +30,7 @@ jobs:
           path: /tmp/artifacts
 
   # Building application yarn install & cypress install
-  build: 
+  build:
     executor:
       name: node
     steps:
@@ -39,7 +39,7 @@ jobs:
       - run: CYPRESS_INSTALL_BINARY=0 yarn add cypress
 
   # Lint using eslint
-  lint: 
+  lint:
     executor:
       name: node
     steps:
@@ -55,14 +55,16 @@ jobs:
           paths:
             - ~/.cache/yarn
           key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large
 
   # Cypress unit testing
-  test: 
-    docker: 
+  test:
+    docker:
       - image: cypress/base:10
     parallelism: 4
     resource_class: large
-    steps: 
+    steps:
       - checkout
       - restore_cache:
           keys:
@@ -81,7 +83,7 @@ jobs:
           path: ~/project/tests/junit.xml
 
   # Build then push docker image to gcr
-  build-docker-image: 
+  build-docker-image:
     machine: true
     resource_class: large
     steps:
@@ -93,9 +95,9 @@ jobs:
       - gcp-gcr/push-image:
           image: planted-app
           tag: $CIRCLE_SHA1
-  
+
   # Deploy application to gke
-  gke-deploy: 
+  gke-deploy:
     machine: true
     resource_class: large
     steps:
@@ -111,21 +113,21 @@ jobs:
           tag: $CIRCLE_SHA1
 
 ### Workflows ###
-workflows: 
+workflows:
   version: 2.1
-  build_test_deploy: 
-    jobs: 
+  build_test_deploy:
+    jobs:
       - artifacts
       - build
       - lint:
           requires:
             - build
       - test:
-          requires: 
+          requires:
             - build
       - build-docker-image:
           context: GCLOUD
-          requires: 
+          requires:
             - test
             - lint
           filters:
@@ -134,11 +136,11 @@ workflows:
                 - main
       - hold-gke-deploy:
           type: approval
-          requires: 
+          requires:
             - build-docker-image
-      - gke-deploy: 
+      - gke-deploy:
           context: GCLOUD
-          requires: 
+          requires:
             - hold-gke-deploy
 
 ### Orbs ###
